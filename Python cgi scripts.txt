@@ -1,0 +1,77 @@
+
+
+#The first step is to update your server:
+$ sudo apt-get update
+#Then install your Apache2 web server:
+$ sudo apt-get install apache2
+#Create your CGI directory .This is where all script you wish to execute will go
+
+$sudo mkdir /var/www/cgi-bin
+
+#The next step tells Apache which directories it can execute in and how to handle a .py file when it sees one. With an editor open /etc/apache2/sites-available/default
+
+$sudo vi /etc/apache2/sites-available/default
+# Inside is a long list of configurations. We want to look at the block of text which should start around line 16. It looks like this:
+
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin/">
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+
+
+Change it to look like this:
+
+	ScriptAlias /cgi-bin/ /var/www/cgi-bin/
+	<Directory "/var/www/cgi-bin">
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+		AddHandler cgi-script .py
+		AddHandler default-handler .html .htm
+	</Directory>
+
+
+
+Now save and exit
+
+
+#Apache will automatically display /var/www /index.html, so we will use this file to make our home page.
+Open the file with:
+
+sudo vi /var/www/index.html
+
+
+
+Delete everything inside.
+Replace it with:
+
+<html>
+<body>
+<form name="myform" action="./cgi-bin/serverscript.py" method="POST">
+First Name: 
+<br  />
+<input name="fname" type="text"  />
+<br  />
+Last Name: 
+<br  />
+<input name="lname" type="text"  />
+<br  />
+<input name="secretsquirrel" type="hidden" value="secret"  />
+<input type="submit" value="submit">
+</form>
+</body>
+</html>
+
+#cd /var/www/cgi-bin
+$sudo vi nginxnew.py
+
+$sudo chmod +x nginxnew.py
+
+
+#Restart apache2
+sudo /etc/init.d/apache2 restart.

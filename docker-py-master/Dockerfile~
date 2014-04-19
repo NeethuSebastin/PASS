@@ -1,0 +1,3 @@
+FROM ubuntu
+MAINTAINER Panchu
+RUN apt-get update
