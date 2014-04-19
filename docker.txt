@@ -1,0 +1,249 @@
+docker installation:
+
+
+1:
+
+To make sure AUFS is installed, run the following commands:
+
+sudo apt-get update
+sudo apt-get install linux-image-extra-`uname -r`
+
+
+
+2:First add the Docker repository key to your local keychain.
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+
+
+3:Add the Docker repository to your apt sources list, update and install the lxc-docker package.
+
+sudo sh -c "echo deb http://get.docker.io/ubuntu docker main\
+> /etc/apt/sources.list.d/docker.list"
+sudo apt-get update
+sudo apt-get install lxc-docker
+
+
+4:
+Now verify that the installation has worked by downloading the ubuntu image and launching a container.
+
+sudo docker run -i -t ubuntu /bin/bash
+
+
+5:example
+sudo docker pull busybox
+sudo docker run busybox /bin/echo hello world
+
+6:
+
+# Add the docker group if it doesn't already exist.
+sudo groupadd docker
+
+# Add the connected user "${USER}" to the docker group.
+# Change the user name to match your preferred user.
+# You may have to logout and log back in again for
+# this to take effect.
+sudo gpasswd -a ${USER} docker
+
+# Restart the Docker daemon.
+
+
+
+
+7:
+
+Upgrade¶
+
+To install the latest version of docker, use the standard apt-get method:
+
+# update your sources list
+sudo apt-get update
+
+# install the latest
+sudo apt-get install lxc-docker
+
+sudo service docker restart
+
+
+8:
+
+
+
+Memory and Swap Accounting
+
+If want to enable memory and swap accounting, you must add the following command-line parameters to your kernel:
+
+cgroup_enable=memory swapaccount=1
+
+On systems using GRUB (which is the default for Ubuntu), you can add those parameters by editing /etc/default/grub and extending GRUB_CMDLINE_LINUX. Look for the following line:
+
+GRUB_CMDLINE_LINUX=""
+
+And replace it by the following one:
+
+GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"
+
+Then run update-grub, and reboot.
+
+
+
+8:
+  Troubleshooting
+
+On Linux Mint, the cgroup-lite package is not installed by default. Before Docker will work correctly, you will need to install this via:
+
+sudo apt-get update && sudo apt-get install cgroup-lite
+
+9:
+Docker and UFW
+
+Docker uses a bridge to manage container networking. By default, UFW drops all forwarding traffic. As a result you will need to enable UFW forwarding:
+
+sudo nano /etc/default/ufw
+----
+# Change:
+# DEFAULT_FORWARD_POLICY="DROP"
+# to
+DEFAULT_FORWARD_POLICY="ACCEPT"
+
+Then reload UFW:
+
+sudo ufw reload
+
+UFW’s default set of rules denies all incoming traffic. If you want to be able to reach your containers from another host then you should allow incoming connections on the Docker port (default 4243):
+
+sudo ufw allow 4243/tcp
+
+10:
+
+Docker and local DNS server warnings
+
+Systems which are running Ubuntu or an Ubuntu derivative on the desktop will use 127.0.0.1 as the default nameserver in /etc/resolv.conf. NetworkManager sets up dnsmasq to use the real DNS servers of the connection and sets up nameserver 127.0.0.1 in /etc/resolv.conf.
+
+When starting containers on these desktop machines, users will see a warning:
+
+WARNING: Local (127.0.0.1) DNS resolver found in resolv.conf and containers can't use it. Using default external servers : [8.8.8.8 8.8.4.4]
+
+This warning is shown because the containers can’t use the local DNS nameserver and Docker will default to using an external nameserver.
+
+This can be worked around by specifying a DNS server to be used by the Docker daemon for the containers:
+
+sudo nano /etc/default/docker
+---
+# Add:
+DOCKER_OPTS="-dns 8.8.8.8"
+# 8.8.8.8 could be replaced with a local DNS server, such as 192.168.1.1
+# multiple DNS servers can be specified: -dns 8.8.8.8 -dns 192.168.1.1
+
+The Docker daemon has to be restarted:
+
+sudo restart docker
+
+
+11:
+
+
+Mirrors¶
+
+You should ping get.docker.io and compare the latency to the following mirrors, and pick whichever one is best for you.
+Yandex
+
+Yandex in Russia is mirroring the Docker Debian packages, updating every 6 hours. Substitute http://mirror.yandex.ru/mirrors/docker/ for http://get.docker.io/ubuntu in the instructions above. For example:
+
+sudo sh -c "echo deb http://mirror.yandex.ru/mirrors/docker/ docker main\
+> /etc/apt/sources.list.d/docker.list"
+sudo apt-get update
+sudo apt-get install lxc-docker
+
+
+NGINX
+
+
+1:
+$ docker run -i -t base /bin/bash
+
+2:
+Now inside the docker image shell, we'll install a plain Nginx version via apt-get:
+
+# necessary to add the ppa $ sudo apt-get install python-software-properties $ sudo apt-get install software-properties-common # add the ppa $ sudo add-apt-repository ppa:nginx/stable # update the repos $ sudo apt-get update # install nginx $ sudo apt-get install nginx
+
+When apt-get has finished running, you can check that things are successful by running:
+
+$ service nginx status
+
+
+3:
+open new terminal
+
+$ docker ps
+
+You should see something like the following - we want to grab the hex number listed under ID:
+
+# output of docker ps >> ID IMAGE COMMAND CREATED STATUS >> 8b44da996d5d base /bin/bash 44 minutes ago Up 44 minutes
+
+This is the ID of your currently running container and what we need to pass to docker in order to create our snapshot. Making a snapshot takes the form:
+
+$ docker commit [ID] [image name]
+
+So.. for example:
+
+$ docker commit 8b44da996d5d neethu/nginx
+
+
+
+4:
+next mounting
+
+docker run -v /home/neethu/mysite/:mysite -p 80 -i -t neethu/nginx /bin/bash
+
+
+5:
+Next Steps
+Update Nginx.conf
+
+# change dir to the folder containing the current nginx.conf file $ cd /path/to/current/nginx/conf/ # rename the current nginx.conf file $ mv nginx.conf nginx.conf.old # symlink your new nginx.conf file into the dir $ ln -s /path/to/new/nginx.conf nginx.conf
+
+6:
+# start nginx $ service nginx start
+
+7:
+
+docker run -v /home/neethu/mysite/:mysite -p 80 -i -t neethu/nginx /bin/bash
+
+
+container id: ls
+mysite will be there.
+vi /etc/nginx/sites-enabled/default
+
+root /mysite;
+
+
+service nginx restart
+
+localhost:port no;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
