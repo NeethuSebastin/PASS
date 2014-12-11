@@ -1,3 +1,5 @@
+Details
+---------
 This repository is all about the academic project by Neethu Sebastin(neethuseb21021992@gmail.com), 
 Panchami K S (panchami.ks1@gmail.com) and Vivek R H(vivekareh@gmail.com).
 
